@@ -78,6 +78,29 @@
   .t-军事{background:var(--mil)} .t-文化·教育·科技{background:var(--cul)} .t-法律制度{background:var(--law)}
   .empty{color:var(--muted);text-align:center;padding:50px 0;font-size:15px}
 
+  /* timeline */
+  .btn.mode.active{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .tllegend{display:flex;flex-wrap:wrap;gap:7px;margin:4px 0 14px}
+  .lgchip{display:flex;align-items:center;gap:6px;font-size:12.5px;cursor:pointer;
+    border:1px solid var(--line);background:#fff;padding:4px 10px;border-radius:999px;user-select:none;transition:.12s}
+  .lgchip:hover{border-color:var(--muted)}
+  .lgchip.off{opacity:.4;text-decoration:line-through}
+  .lgdot{width:11px;height:11px;border-radius:50%;flex:0 0 auto}
+  .tlwrap{display:flex;border:1px solid var(--line);border-radius:14px;overflow:hidden;
+    background:var(--paper);box-shadow:var(--shadow)}
+  .tlleft{flex:0 0 138px;border-right:1px solid var(--line);background:#fbf8f1}
+  .tlleft .spacer{border-bottom:1px solid var(--line)}
+  .tlcell{display:flex;align-items:center;gap:8px;padding:0 10px;border-bottom:1px solid #efe9dc;
+    font-size:12.5px;font-weight:700;line-height:1.25;cursor:pointer;color:var(--ink)}
+  .tlcell:hover{background:#f3eee2}
+  .tlcell .bar{width:4px;border-radius:3px;flex:0 0 auto;align-self:stretch;margin:14px 0}
+  .tlscroll{overflow-x:auto;flex:1 1 auto}
+  .tlscroll svg{display:block}
+  .tl-name{font-size:11px;cursor:pointer}
+  .tl-name:hover{font-weight:800}
+  .tl-yr{font-size:11px;fill:var(--muted)}
+  .tlnote{font-size:12px;color:var(--muted);margin-top:10px;text-align:center}
+
   .overlay{position:fixed;inset:0;background:rgba(30,24,18,.5);display:none;align-items:flex-start;
     justify-content:center;padding:40px 16px;z-index:50;overflow:auto}
   .overlay.show{display:flex}
@@ -107,11 +130,20 @@
   </header>
 
   <div class="panel">
-    <div class="searchrow">
+    <div class="tier" style="margin-top:0">
+      <span class="flabel">视图</span>
+      <div class="seg" id="modeseg">
+        <button class="btn mode l1 active" data-mode="cards">卡片浏览</button>
+        <button class="btn mode l1" data-mode="timeline">时间线</button>
+      </div>
+    </div>
+
+    <div class="searchrow" style="margin-top:14px">
       <input id="q" type="text" placeholder="搜索名词、别称或解释内容…">
       <span class="count" id="count"></span>
     </div>
 
+    <div id="cardTiers">
     <div class="tier">
       <span class="flabel">一级分类</span>
       <div class="seg" id="l1seg">
@@ -124,6 +156,12 @@
       <span class="flabel">二级细分</span>
       <div class="seg" id="l2seg"></div>
     </div>
+    </div>
+
+    <div id="tlHint" class="tier" style="display:none">
+      <span class="flabel">时间线</span>
+      <span style="font-size:12.5px;color:var(--muted)">所有名词按<b style="color:var(--ink)">发生年份</b>排在同一时间轴上；属于同一<b style="color:var(--ink)">历史线索</b>的用同色圆点并连成脉络。点名称看完整解释；点左侧标题可<b style="color:var(--ink)">单独查看</b>某条线索，时间轴会自动放大到其年代区间。</span>
+    </div>
 
     <div class="filters">
       <div class="frow"><span class="flabel">筛选·时间</span><div class="chips" id="f-time"></div></div>
@@ -134,6 +172,7 @@
   </div>
 
   <div id="list"></div>
+  <div id="timeline" style="display:none"></div>
 
   <footer>
     数据提炼自《扫描件 · 第十一章 共和国史》名词解释，共 124 条 · 解释内容均为原文直引<br>
@@ -155,7 +194,9 @@ const DATA = [
   "sec_id": "S1",
   "type": "政治",
   "nature": "制度",
-  "nature_fine": "社会形态/制度"
+  "nature_fine": "社会形态/制度",
+  "thread": "T1",
+  "year": 1949
  },
  {
   "term": "中共七届三中全会",
@@ -167,7 +208,9 @@ const DATA = [
   "sec_id": "S1",
   "type": "政治",
   "nature": "会议",
-  "nature_fine": "会议"
+  "nature_fine": "会议",
+  "thread": "T1",
+  "year": 1950
  },
  {
   "term": "镇压反革命",
@@ -179,7 +222,9 @@ const DATA = [
   "sec_id": "S1",
   "type": "政治",
   "nature": "运动",
-  "nature_fine": "运动"
+  "nature_fine": "运动",
+  "thread": "T1",
+  "year": 1950
  },
  {
   "term": "全国人大一届一次会议",
@@ -191,7 +236,9 @@ const DATA = [
   "sec_id": "S1",
   "type": "政治",
   "nature": "会议",
-  "nature_fine": "会议"
+  "nature_fine": "会议",
+  "thread": "T1",
+  "year": 1954
  },
  {
   "term": "《中华人民共和国宪法》(1954年)",
@@ -203,7 +250,9 @@ const DATA = [
   "sec_id": "S1",
   "type": "法律制度",
   "nature": "法律法规",
-  "nature_fine": "法律法规"
+  "nature_fine": "法律法规",
+  "thread": "T1",
+  "year": 1954
  },
  {
   "term": "三反五反运动",
@@ -215,7 +264,9 @@ const DATA = [
   "sec_id": "S1",
   "type": "政治",
   "nature": "运动",
-  "nature_fine": "运动"
+  "nature_fine": "运动",
+  "thread": "T1",
+  "year": 1951
  },
  {
   "term": "西藏和平解放",
@@ -227,7 +278,9 @@ const DATA = [
   "sec_id": "S1",
   "type": "政治",
   "nature": "事件",
-  "nature_fine": "事件"
+  "nature_fine": "事件",
+  "thread": "T1",
+  "year": 1951
  },
  {
   "term": "十七条协议",
@@ -239,7 +292,9 @@ const DATA = [
   "sec_id": "S1",
   "type": "政治",
   "nature": "条约·公报",
-  "nature_fine": "协议"
+  "nature_fine": "协议",
+  "thread": "T1",
+  "year": 1951
  },
  {
   "term": "民族区域自治制度",
@@ -251,7 +306,9 @@ const DATA = [
   "sec_id": "S1",
   "type": "政治",
   "nature": "制度",
-  "nature_fine": "制度"
+  "nature_fine": "制度",
+  "thread": "T1",
+  "year": 1947
  },
  {
   "term": "第一次知识分子思想改造运动",
@@ -263,7 +320,9 @@ const DATA = [
   "sec_id": "S1",
   "type": "文化·教育·科技",
   "nature": "运动",
-  "nature_fine": "运动"
+  "nature_fine": "运动",
+  "thread": "T1",
+  "year": 1951
  },
  {
   "term": "第一部婚姻法",
@@ -275,7 +334,9 @@ const DATA = [
   "sec_id": "S1",
   "type": "法律制度",
   "nature": "法律法规",
-  "nature_fine": "法律法规"
+  "nature_fine": "法律法规",
+  "thread": "T1",
+  "year": 1950
  },
  {
   "term": "土地改革运动",
@@ -287,7 +348,9 @@ const DATA = [
   "sec_id": "S1",
   "type": "经济",
   "nature": "运动",
-  "nature_fine": "运动"
+  "nature_fine": "运动",
+  "thread": "T1",
+  "year": 1946
  },
  {
   "term": "《土地改革法》",
@@ -299,7 +362,9 @@ const DATA = [
   "sec_id": "S1",
   "type": "法律制度",
   "nature": "法律法规",
-  "nature_fine": "法律法规"
+  "nature_fine": "法律法规",
+  "thread": "T1",
+  "year": 1950
  },
  {
   "term": "过渡时期总路线",
@@ -311,7 +376,9 @@ const DATA = [
   "sec_id": "S1",
   "type": "政治",
   "nature": "政策·路线·战略",
-  "nature_fine": "路线方针"
+  "nature_fine": "路线方针",
+  "thread": "T2",
+  "year": 1953
  },
  {
   "term": "三大改造",
@@ -323,7 +390,9 @@ const DATA = [
   "sec_id": "S1",
   "type": "经济",
   "nature": "运动",
-  "nature_fine": "运动/改造"
+  "nature_fine": "运动/改造",
+  "thread": "T2",
+  "year": 1952
  },
  {
   "term": "资本主义工商业改造",
@@ -335,7 +404,9 @@ const DATA = [
   "sec_id": "S1",
   "type": "经济",
   "nature": "政策·路线·战略",
-  "nature_fine": "政策/改造"
+  "nature_fine": "政策/改造",
+  "thread": "T2",
+  "year": 1955
  },
  {
   "term": "和平赎买",
@@ -347,7 +418,9 @@ const DATA = [
   "sec_id": "S1",
   "type": "经济",
   "nature": "政策·路线·战略",
-  "nature_fine": "政策方针"
+  "nature_fine": "政策方针",
+  "thread": "T2",
+  "year": 1955
  },
  {
   "term": "第一个五年计划",
@@ -359,7 +432,9 @@ const DATA = [
   "sec_id": "S1",
   "type": "经济",
   "nature": "政策·路线·战略",
-  "nature_fine": "规划/计划"
+  "nature_fine": "规划/计划",
+  "thread": "T2",
+  "year": 1953
  },
  {
   "term": "156项工程",
@@ -371,7 +446,9 @@ const DATA = [
   "sec_id": "S1",
   "type": "经济",
   "nature": "工程项目",
-  "nature_fine": "工程项目"
+  "nature_fine": "工程项目",
+  "thread": "T2",
+  "year": 1953
  },
  {
   "term": "统购统销政策",
@@ -383,7 +460,9 @@ const DATA = [
   "sec_id": "S1",
   "type": "经济",
   "nature": "政策·路线·战略",
-  "nature_fine": "政策方针"
+  "nature_fine": "政策方针",
+  "thread": "T2",
+  "year": 1953
  },
  {
   "term": "四马分肥",
@@ -395,7 +474,9 @@ const DATA = [
   "sec_id": "S1",
   "type": "经济",
   "nature": "政策·路线·战略",
-  "nature_fine": "政策方针"
+  "nature_fine": "政策方针",
+  "thread": "T2",
+  "year": 1953
  },
  {
   "term": "没收官僚资本",
@@ -407,7 +488,9 @@ const DATA = [
   "sec_id": "S1",
   "type": "经济",
   "nature": "政策·路线·战略",
-  "nature_fine": "政策/措施"
+  "nature_fine": "政策/措施",
+  "thread": "T2",
+  "year": 1949
  },
  {
   "term": "公私合营",
@@ -419,7 +502,9 @@ const DATA = [
   "sec_id": "S1",
   "type": "经济",
   "nature": "政策·路线·战略",
-  "nature_fine": "政策/形式"
+  "nature_fine": "政策/形式",
+  "thread": "T2",
+  "year": 1955
  },
  {
   "term": "全国知识分子问题会议(1956年)",
@@ -431,7 +516,9 @@ const DATA = [
   "sec_id": "S2",
   "type": "文化·教育·科技",
   "nature": "会议",
-  "nature_fine": "会议"
+  "nature_fine": "会议",
+  "thread": "T9",
+  "year": 1956
  },
  {
   "term": "《论十大关系》",
@@ -443,7 +530,9 @@ const DATA = [
   "sec_id": "S2",
   "type": "政治",
   "nature": "文件·文献",
-  "nature_fine": "文件/讲话"
+  "nature_fine": "文件/讲话",
+  "thread": "T3",
+  "year": 1956
  },
  {
   "term": "中共八大",
@@ -455,7 +544,9 @@ const DATA = [
   "sec_id": "S2",
   "type": "政治",
   "nature": "会议",
-  "nature_fine": "会议"
+  "nature_fine": "会议",
+  "thread": "T3",
+  "year": 1956
  },
  {
   "term": "八大二次会议",
@@ -467,7 +558,9 @@ const DATA = [
   "sec_id": "S2",
   "type": "政治",
   "nature": "会议",
-  "nature_fine": "会议"
+  "nature_fine": "会议",
+  "thread": "T3",
+  "year": 1958
  },
  {
   "term": "三面红旗",
@@ -479,7 +572,9 @@ const DATA = [
   "sec_id": "S2",
   "type": "经济",
   "nature": "概念·人物",
-  "nature_fine": "概念/统称"
+  "nature_fine": "概念/统称",
+  "thread": "T3",
+  "year": 1958
  },
  {
   "term": "社会主义建设总路线",
@@ -491,7 +586,9 @@ const DATA = [
   "sec_id": "S2",
   "type": "经济",
   "nature": "政策·路线·战略",
-  "nature_fine": "路线方针"
+  "nature_fine": "路线方针",
+  "thread": "T3",
+  "year": 1958
  },
  {
   "term": "大跃进运动",
@@ -503,7 +600,9 @@ const DATA = [
   "sec_id": "S2",
   "type": "经济",
   "nature": "运动",
-  "nature_fine": "运动"
+  "nature_fine": "运动",
+  "thread": "T3",
+  "year": 1958
  },
  {
   "term": "人民公社",
@@ -515,7 +614,9 @@ const DATA = [
   "sec_id": "S2",
   "type": "经济",
   "nature": "制度",
-  "nature_fine": "组织/制度"
+  "nature_fine": "组织/制度",
+  "thread": "T3",
+  "year": 1958
  },
  {
   "term": "人民公社化运动",
@@ -527,7 +628,9 @@ const DATA = [
   "sec_id": "S2",
   "type": "经济",
   "nature": "运动",
-  "nature_fine": "运动"
+  "nature_fine": "运动",
+  "thread": "T3",
+  "year": 1958
  },
  {
   "term": "初级农业生产合作社",
@@ -539,7 +642,9 @@ const DATA = [
   "sec_id": "S2",
   "type": "经济",
   "nature": "组织·机构",
-  "nature_fine": "组织"
+  "nature_fine": "组织",
+  "thread": "T3",
+  "year": 1955
  },
  {
   "term": "四个现代化",
@@ -551,7 +656,9 @@ const DATA = [
   "sec_id": "S2",
   "type": "经济",
   "nature": "政策·路线·战略",
-  "nature_fine": "战略目标"
+  "nature_fine": "战略目标",
+  "thread": "T3",
+  "year": 1964
  },
  {
   "term": "农业学大寨",
@@ -563,7 +670,9 @@ const DATA = [
   "sec_id": "S2",
   "type": "经济",
   "nature": "运动",
-  "nature_fine": "运动"
+  "nature_fine": "运动",
+  "thread": "T3",
+  "year": 1965
  },
  {
   "term": "红旗渠",
@@ -575,7 +684,9 @@ const DATA = [
   "sec_id": "S2",
   "type": "经济",
   "nature": "工程项目",
-  "nature_fine": "工程项目"
+  "nature_fine": "工程项目",
+  "thread": "T3",
+  "year": 1960
  },
  {
   "term": "北戴河会议",
@@ -587,7 +698,9 @@ const DATA = [
   "sec_id": "S2",
   "type": "经济",
   "nature": "会议",
-  "nature_fine": "会议"
+  "nature_fine": "会议",
+  "thread": "T3",
+  "year": 1958
  },
  {
   "term": "农业发展纲要四十条",
@@ -599,7 +712,9 @@ const DATA = [
   "sec_id": "S2",
   "type": "经济",
   "nature": "文件·文献",
-  "nature_fine": "文件/规划"
+  "nature_fine": "文件/规划",
+  "thread": "T3",
+  "year": 1956
  },
  {
   "term": "八字方针",
@@ -611,7 +726,9 @@ const DATA = [
   "sec_id": "S2",
   "type": "经济",
   "nature": "政策·路线·战略",
-  "nature_fine": "政策方针"
+  "nature_fine": "政策方针",
+  "thread": "T3",
+  "year": 1961
  },
  {
   "term": "七千人大会",
@@ -623,7 +740,9 @@ const DATA = [
   "sec_id": "S2",
   "type": "政治",
   "nature": "会议",
-  "nature_fine": "会议"
+  "nature_fine": "会议",
+  "thread": "T3",
+  "year": 1962
  },
  {
   "term": "西楼会议",
@@ -635,7 +754,9 @@ const DATA = [
   "sec_id": "S2",
   "type": "经济",
   "nature": "会议",
-  "nature_fine": "会议"
+  "nature_fine": "会议",
+  "thread": "T3",
+  "year": 1962
  },
  {
   "term": "《关于正确处理人民内部矛盾的问题》",
@@ -647,7 +768,9 @@ const DATA = [
   "sec_id": "S2",
   "type": "政治",
   "nature": "文件·文献",
-  "nature_fine": "文件/讲话"
+  "nature_fine": "文件/讲话",
+  "thread": "T4",
+  "year": 1957
  },
  {
   "term": "长期共存、互相监督",
@@ -659,7 +782,9 @@ const DATA = [
   "sec_id": "S2",
   "type": "政治",
   "nature": "政策·路线·战略",
-  "nature_fine": "政策方针"
+  "nature_fine": "政策方针",
+  "thread": "T4",
+  "year": 1956
  },
  {
   "term": "整风运动",
@@ -671,7 +796,9 @@ const DATA = [
   "sec_id": "S2",
   "type": "政治",
   "nature": "运动",
-  "nature_fine": "运动"
+  "nature_fine": "运动",
+  "thread": "T4",
+  "year": 1957
  },
  {
   "term": "庐山会议",
@@ -683,7 +810,9 @@ const DATA = [
   "sec_id": "S2",
   "type": "政治",
   "nature": "会议",
-  "nature_fine": "会议"
+  "nature_fine": "会议",
+  "thread": "T4",
+  "year": 1959
  },
  {
   "term": "社会主义教育运动",
@@ -695,7 +824,9 @@ const DATA = [
   "sec_id": "S2",
   "type": "政治",
   "nature": "运动",
-  "nature_fine": "运动"
+  "nature_fine": "运动",
+  "thread": "T4",
+  "year": 1962
  },
  {
   "term": "《海瑞罢官》",
@@ -707,7 +838,9 @@ const DATA = [
   "sec_id": "S3",
   "type": "文化·教育·科技",
   "nature": "文件·文献",
-  "nature_fine": "文艺作品"
+  "nature_fine": "文艺作品",
+  "thread": "T5",
+  "year": 1965
  },
  {
   "term": "《二月提纲》",
@@ -719,7 +852,9 @@ const DATA = [
   "sec_id": "S3",
   "type": "政治",
   "nature": "文件·文献",
-  "nature_fine": "文件"
+  "nature_fine": "文件",
+  "thread": "T5",
+  "year": 1966
  },
  {
   "term": "中央文革小组",
@@ -731,7 +866,9 @@ const DATA = [
   "sec_id": "S3",
   "type": "政治",
   "nature": "组织·机构",
-  "nature_fine": "组织机构"
+  "nature_fine": "组织机构",
+  "thread": "T5",
+  "year": 1966
  },
  {
   "term": "五七指示",
@@ -743,7 +880,9 @@ const DATA = [
   "sec_id": "S3",
   "type": "政治",
   "nature": "文件·文献",
-  "nature_fine": "文件/讲话"
+  "nature_fine": "文件/讲话",
+  "thread": "T5",
+  "year": 1966
  },
  {
   "term": "“文化大革命”",
@@ -755,7 +894,9 @@ const DATA = [
   "sec_id": "S3",
   "type": "政治",
   "nature": "运动",
-  "nature_fine": "事件/运动"
+  "nature_fine": "事件/运动",
+  "thread": "T5",
+  "year": 1966
  },
  {
   "term": "五一六通知",
@@ -767,7 +908,9 @@ const DATA = [
   "sec_id": "S3",
   "type": "政治",
   "nature": "文件·文献",
-  "nature_fine": "文件"
+  "nature_fine": "文件",
+  "thread": "T5",
+  "year": 1966
  },
  {
   "term": "十六条",
@@ -779,7 +922,9 @@ const DATA = [
   "sec_id": "S3",
   "type": "政治",
   "nature": "文件·文献",
-  "nature_fine": "文件"
+  "nature_fine": "文件",
+  "thread": "T5",
+  "year": 1966
  },
  {
   "term": "红卫兵运动",
@@ -791,7 +936,9 @@ const DATA = [
   "sec_id": "S3",
   "type": "政治",
   "nature": "运动",
-  "nature_fine": "运动"
+  "nature_fine": "运动",
+  "thread": "T5",
+  "year": 1966
  },
  {
   "term": "破四旧运动",
@@ -803,7 +950,9 @@ const DATA = [
   "sec_id": "S3",
   "type": "文化·教育·科技",
   "nature": "运动",
-  "nature_fine": "运动"
+  "nature_fine": "运动",
+  "thread": "T5",
+  "year": 1966
  },
  {
   "term": "一月风暴",
@@ -815,7 +964,9 @@ const DATA = [
   "sec_id": "S3",
   "type": "政治",
   "nature": "事件",
-  "nature_fine": "事件"
+  "nature_fine": "事件",
+  "thread": "T5",
+  "year": 1967
  },
  {
   "term": "二月抗争",
@@ -827,7 +978,9 @@ const DATA = [
   "sec_id": "S3",
   "type": "政治",
   "nature": "事件",
-  "nature_fine": "事件"
+  "nature_fine": "事件",
+  "thread": "T5",
+  "year": 1967
  },
  {
   "term": "上山下乡运动",
@@ -839,7 +992,9 @@ const DATA = [
   "sec_id": "S3",
   "type": "政治",
   "nature": "运动",
-  "nature_fine": "运动"
+  "nature_fine": "运动",
+  "thread": "T5",
+  "year": 1968
  },
  {
   "term": "三线建设",
@@ -851,7 +1006,9 @@ const DATA = [
   "sec_id": "S3",
   "type": "经济",
   "nature": "工程项目",
-  "nature_fine": "工程/建设"
+  "nature_fine": "工程/建设",
+  "thread": "T5",
+  "year": 1964
  },
  {
   "term": "中共九大",
@@ -863,7 +1020,9 @@ const DATA = [
   "sec_id": "S3",
   "type": "政治",
   "nature": "会议",
-  "nature_fine": "会议"
+  "nature_fine": "会议",
+  "thread": "T5",
+  "year": 1969
  },
  {
   "term": "“斗批改”运动",
@@ -875,7 +1034,9 @@ const DATA = [
   "sec_id": "S3",
   "type": "政治",
   "nature": "运动",
-  "nature_fine": "运动"
+  "nature_fine": "运动",
+  "thread": "T5",
+  "year": 1969
  },
  {
   "term": "《“571工程”纪要》",
@@ -887,7 +1048,9 @@ const DATA = [
   "sec_id": "S3",
   "type": "政治",
   "nature": "文件·文献",
-  "nature_fine": "文件"
+  "nature_fine": "文件",
+  "thread": "T5",
+  "year": 1971
  },
  {
   "term": "九一三事件",
@@ -899,7 +1062,9 @@ const DATA = [
   "sec_id": "S3",
   "type": "政治",
   "nature": "事件",
-  "nature_fine": "事件"
+  "nature_fine": "事件",
+  "thread": "T5",
+  "year": 1971
  },
  {
   "term": "批林批孔",
@@ -911,7 +1076,9 @@ const DATA = [
   "sec_id": "S3",
   "type": "政治",
   "nature": "运动",
-  "nature_fine": "运动"
+  "nature_fine": "运动",
+  "thread": "T5",
+  "year": 1974
  },
  {
   "term": "“四人帮”",
@@ -923,7 +1090,9 @@ const DATA = [
   "sec_id": "S3",
   "type": "政治",
   "nature": "组织·机构",
-  "nature_fine": "组织/集团"
+  "nature_fine": "组织/集团",
+  "thread": "T5",
+  "year": 1973
  },
  {
   "term": "风庆轮事件",
@@ -935,7 +1104,9 @@ const DATA = [
   "sec_id": "S3",
   "type": "政治",
   "nature": "事件",
-  "nature_fine": "事件"
+  "nature_fine": "事件",
+  "thread": "T5",
+  "year": 1974
  },
  {
   "term": "反击右倾翻案风",
@@ -947,7 +1118,9 @@ const DATA = [
   "sec_id": "S3",
   "type": "政治",
   "nature": "运动",
-  "nature_fine": "运动"
+  "nature_fine": "运动",
+  "thread": "T5",
+  "year": 1975
  },
  {
   "term": "四五运动",
@@ -959,7 +1132,9 @@ const DATA = [
   "sec_id": "S3",
   "type": "政治",
   "nature": "运动",
-  "nature_fine": "事件/运动"
+  "nature_fine": "事件/运动",
+  "thread": "T5",
+  "year": 1976
  },
  {
   "term": "两个凡是",
@@ -971,7 +1146,9 @@ const DATA = [
   "sec_id": "S4",
   "type": "政治",
   "nature": "政策·路线·战略",
-  "nature_fine": "政策方针"
+  "nature_fine": "政策方针",
+  "thread": "T6",
+  "year": 1977
  },
  {
   "term": "《实践是检验真理的唯一标准》",
@@ -983,7 +1160,9 @@ const DATA = [
   "sec_id": "S4",
   "type": "政治",
   "nature": "文件·文献",
-  "nature_fine": "文件/文章"
+  "nature_fine": "文件/文章",
+  "thread": "T6",
+  "year": 1978
  },
  {
   "term": "真理标准问题大讨论",
@@ -995,7 +1174,9 @@ const DATA = [
   "sec_id": "S4",
   "type": "政治",
   "nature": "事件",
-  "nature_fine": "事件/讨论"
+  "nature_fine": "事件/讨论",
+  "thread": "T6",
+  "year": 1978
  },
  {
   "term": "中共十一届三中全会",
@@ -1007,7 +1188,9 @@ const DATA = [
   "sec_id": "S4",
   "type": "政治",
   "nature": "会议",
-  "nature_fine": "会议"
+  "nature_fine": "会议",
+  "thread": "T6",
+  "year": 1978
  },
  {
   "term": "《关于建国以来党的若干历史问题的决议》",
@@ -1019,7 +1202,9 @@ const DATA = [
   "sec_id": "S4",
   "type": "政治",
   "nature": "文件·文献",
-  "nature_fine": "文件/决议"
+  "nature_fine": "文件/决议",
+  "thread": "T6",
+  "year": 1981
  },
  {
   "term": "家庭联产承包责任制",
@@ -1031,7 +1216,9 @@ const DATA = [
   "sec_id": "S5",
   "type": "经济",
   "nature": "制度",
-  "nature_fine": "制度/政策"
+  "nature_fine": "制度/政策",
+  "thread": "T7",
+  "year": 1978
  },
  {
   "term": "新“八字方针”",
@@ -1043,7 +1230,9 @@ const DATA = [
   "sec_id": "S5",
   "type": "经济",
   "nature": "政策·路线·战略",
-  "nature_fine": "政策方针"
+  "nature_fine": "政策方针",
+  "thread": "T7",
+  "year": 1979
  },
  {
   "term": "价格双轨制",
@@ -1055,7 +1244,9 @@ const DATA = [
   "sec_id": "S5",
   "type": "经济",
   "nature": "制度",
-  "nature_fine": "制度/政策"
+  "nature_fine": "制度/政策",
+  "thread": "T7",
+  "year": 1985
  },
  {
   "term": "经济特区",
@@ -1067,7 +1258,9 @@ const DATA = [
   "sec_id": "S5",
   "type": "经济",
   "nature": "政策·路线·战略",
-  "nature_fine": "区域政策"
+  "nature_fine": "区域政策",
+  "thread": "T7",
+  "year": 1979
  },
  {
   "term": "浦东开发开放",
@@ -1079,7 +1272,9 @@ const DATA = [
   "sec_id": "S5",
   "type": "经济",
   "nature": "事件",
-  "nature_fine": "事件/政策"
+  "nature_fine": "事件/政策",
+  "thread": "T7",
+  "year": 1990
  },
  {
   "term": "一纲四目",
@@ -1091,7 +1286,9 @@ const DATA = [
   "sec_id": "S5",
   "type": "政治",
   "nature": "政策·路线·战略",
-  "nature_fine": "政策方针"
+  "nature_fine": "政策方针",
+  "thread": "T8",
+  "year": 1963
  },
  {
   "term": "《告台湾同胞书》",
@@ -1103,7 +1300,9 @@ const DATA = [
   "sec_id": "S5",
   "type": "政治",
   "nature": "文件·文献",
-  "nature_fine": "文件"
+  "nature_fine": "文件",
+  "thread": "T8",
+  "year": 1979
  },
  {
   "term": "叶九条",
@@ -1115,7 +1314,9 @@ const DATA = [
   "sec_id": "S5",
   "type": "政治",
   "nature": "政策·路线·战略",
-  "nature_fine": "政策方针"
+  "nature_fine": "政策方针",
+  "thread": "T8",
+  "year": 1981
  },
  {
   "term": "一国两制",
@@ -1127,7 +1328,9 @@ const DATA = [
   "sec_id": "S5",
   "type": "政治",
   "nature": "政策·路线·战略",
-  "nature_fine": "政策/国策"
+  "nature_fine": "政策/国策",
+  "thread": "T8",
+  "year": 1982
  },
  {
   "term": "九二共识",
@@ -1139,7 +1342,9 @@ const DATA = [
   "sec_id": "S5",
   "type": "政治",
   "nature": "概念·人物",
-  "nature_fine": "概念/共识"
+  "nature_fine": "概念/共识",
+  "thread": "T8",
+  "year": 1992
  },
  {
   "term": "南方谈话",
@@ -1151,7 +1356,9 @@ const DATA = [
   "sec_id": "S5",
   "type": "政治",
   "nature": "文件·文献",
-  "nature_fine": "文件/讲话"
+  "nature_fine": "文件/讲话",
+  "thread": "T7",
+  "year": 1992
  },
  {
   "term": "四项基本原则",
@@ -1163,7 +1370,9 @@ const DATA = [
   "sec_id": "S5",
   "type": "政治",
   "nature": "政策·路线·战略",
-  "nature_fine": "政策方针"
+  "nature_fine": "政策方针",
+  "thread": "T7",
+  "year": 1979
  },
  {
   "term": "社会主义初级阶段基本路线",
@@ -1175,7 +1384,9 @@ const DATA = [
   "sec_id": "S5",
   "type": "政治",
   "nature": "政策·路线·战略",
-  "nature_fine": "路线方针"
+  "nature_fine": "路线方针",
+  "thread": "T7",
+  "year": 1987
  },
  {
   "term": "三步走战略",
@@ -1187,7 +1398,9 @@ const DATA = [
   "sec_id": "S5",
   "type": "经济",
   "nature": "政策·路线·战略",
-  "nature_fine": "战略规划"
+  "nature_fine": "战略规划",
+  "thread": "T7",
+  "year": 1987
  },
  {
   "term": "“走出去”战略",
@@ -1199,7 +1412,9 @@ const DATA = [
   "sec_id": "S5",
   "type": "经济",
   "nature": "政策·路线·战略",
-  "nature_fine": "战略规划"
+  "nature_fine": "战略规划",
+  "thread": "T7",
+  "year": 2000
  },
  {
   "term": "脱贫攻坚",
@@ -1211,7 +1426,9 @@ const DATA = [
   "sec_id": "S5",
   "type": "经济",
   "nature": "政策·路线·战略",
-  "nature_fine": "战略/工作"
+  "nature_fine": "战略/工作",
+  "thread": "T7",
+  "year": 2012
  },
  {
   "term": "《新人口论》",
@@ -1223,7 +1440,9 @@ const DATA = [
   "sec_id": "S6",
   "type": "文化·教育·科技",
   "nature": "文件·文献",
-  "nature_fine": "文件/著作"
+  "nature_fine": "文件/著作",
+  "thread": "T9",
+  "year": 1957
  },
  {
   "term": "计划生育",
@@ -1235,7 +1454,9 @@ const DATA = [
   "sec_id": "S6",
   "type": "政治",
   "nature": "政策·路线·战略",
-  "nature_fine": "政策/国策"
+  "nature_fine": "政策/国策",
+  "thread": "T9",
+  "year": 1982
  },
  {
   "term": "百花齐放百家争鸣",
@@ -1247,7 +1468,9 @@ const DATA = [
   "sec_id": "S6",
   "type": "文化·教育·科技",
   "nature": "政策·路线·战略",
-  "nature_fine": "政策方针"
+  "nature_fine": "政策方针",
+  "thread": "T9",
+  "year": 1956
  },
  {
   "term": "院系调整",
@@ -1259,7 +1482,9 @@ const DATA = [
   "sec_id": "S6",
   "type": "文化·教育·科技",
   "nature": "事件",
-  "nature_fine": "事件/改革"
+  "nature_fine": "事件/改革",
+  "thread": "T9",
+  "year": 1952
  },
  {
   "term": "老五届",
@@ -1271,7 +1496,9 @@ const DATA = [
   "sec_id": "S6",
   "type": "文化·教育·科技",
   "nature": "概念·人物",
-  "nature_fine": "概念/称谓"
+  "nature_fine": "概念/称谓",
+  "thread": "T9",
+  "year": 1966
  },
  {
   "term": "两弹一星",
@@ -1283,7 +1510,9 @@ const DATA = [
   "sec_id": "S6",
   "type": "文化·教育·科技",
   "nature": "工程项目",
-  "nature_fine": "工程/成就"
+  "nature_fine": "工程/成就",
+  "thread": "T9",
+  "year": 1965
  },
  {
   "term": "老邱",
@@ -1295,7 +1524,9 @@ const DATA = [
   "sec_id": "S6",
   "type": "文化·教育·科技",
   "nature": "概念·人物",
-  "nature_fine": "概念/称谓"
+  "nature_fine": "概念/称谓",
+  "thread": "T9",
+  "year": 1964
  },
  {
   "term": "邓稼先",
@@ -1307,7 +1538,9 @@ const DATA = [
   "sec_id": "S6",
   "type": "文化·教育·科技",
   "nature": "概念·人物",
-  "nature_fine": "人物"
+  "nature_fine": "人物",
+  "thread": "T9",
+  "year": 1958
  },
  {
   "term": "“火炬”计划",
@@ -1319,7 +1552,9 @@ const DATA = [
   "sec_id": "S6",
   "type": "文化·教育·科技",
   "nature": "政策·路线·战略",
-  "nature_fine": "规划/计划"
+  "nature_fine": "规划/计划",
+  "thread": "T9",
+  "year": 1988
  },
  {
   "term": "中国科学院",
@@ -1331,7 +1566,9 @@ const DATA = [
   "sec_id": "S6",
   "type": "文化·教育·科技",
   "nature": "组织·机构",
-  "nature_fine": "组织机构"
+  "nature_fine": "组织机构",
+  "thread": "T9",
+  "year": 1949
  },
  {
   "term": "全国科学大会",
@@ -1343,7 +1580,9 @@ const DATA = [
   "sec_id": "S6",
   "type": "文化·教育·科技",
   "nature": "会议",
-  "nature_fine": "会议"
+  "nature_fine": "会议",
+  "thread": "T9",
+  "year": 1978
  },
  {
   "term": "863计划",
@@ -1355,7 +1594,9 @@ const DATA = [
   "sec_id": "S6",
   "type": "文化·教育·科技",
   "nature": "政策·路线·战略",
-  "nature_fine": "规划/计划"
+  "nature_fine": "规划/计划",
+  "thread": "T9",
+  "year": 1986
  },
  {
   "term": "科教兴国战略",
@@ -1367,7 +1608,9 @@ const DATA = [
   "sec_id": "S6",
   "type": "文化·教育·科技",
   "nature": "政策·路线·战略",
-  "nature_fine": "战略规划"
+  "nature_fine": "战略规划",
+  "thread": "T9",
+  "year": 1995
  },
  {
   "term": "另起炉灶",
@@ -1379,7 +1622,9 @@ const DATA = [
   "sec_id": "S7",
   "type": "外交",
   "nature": "政策·路线·战略",
-  "nature_fine": "政策方针"
+  "nature_fine": "政策方针",
+  "thread": "T10",
+  "year": 1949
  },
  {
   "term": "打扫干净屋子再请客",
@@ -1391,7 +1636,9 @@ const DATA = [
   "sec_id": "S7",
   "type": "外交",
   "nature": "政策·路线·战略",
-  "nature_fine": "政策方针"
+  "nature_fine": "政策方针",
+  "thread": "T10",
+  "year": 1949
  },
  {
   "term": "一边倒",
@@ -1403,7 +1650,9 @@ const DATA = [
   "sec_id": "S7",
   "type": "外交",
   "nature": "政策·路线·战略",
-  "nature_fine": "政策方针"
+  "nature_fine": "政策方针",
+  "thread": "T10",
+  "year": 1949
  },
  {
   "term": "和平共处五项原则",
@@ -1415,7 +1664,9 @@ const DATA = [
   "sec_id": "S7",
   "type": "外交",
   "nature": "政策·路线·战略",
-  "nature_fine": "政策方针"
+  "nature_fine": "政策方针",
+  "thread": "T10",
+  "year": 1953
  },
  {
   "term": "三个世界理论",
@@ -1427,7 +1678,9 @@ const DATA = [
   "sec_id": "S7",
   "type": "外交",
   "nature": "概念·人物",
-  "nature_fine": "理论/概念"
+  "nature_fine": "理论/概念",
+  "thread": "T10",
+  "year": 1974
  },
  {
   "term": "四三方案",
@@ -1439,7 +1692,9 @@ const DATA = [
   "sec_id": "S7",
   "type": "经济",
   "nature": "政策·路线·战略",
-  "nature_fine": "政策/方案"
+  "nature_fine": "政策/方案",
+  "thread": "T10",
+  "year": 1973
  },
  {
   "term": "海洋强国",
@@ -1451,7 +1706,9 @@ const DATA = [
   "sec_id": "S7",
   "type": "外交",
   "nature": "政策·路线·战略",
-  "nature_fine": "战略/概念"
+  "nature_fine": "战略/概念",
+  "thread": "T10",
+  "year": 2012
  },
  {
   "term": "一带一路",
@@ -1463,7 +1720,9 @@ const DATA = [
   "sec_id": "S7",
   "type": "外交",
   "nature": "政策·路线·战略",
-  "nature_fine": "战略/倡议"
+  "nature_fine": "战略/倡议",
+  "thread": "T10",
+  "year": 2013
  },
  {
   "term": "《中苏友好同盟互助条约》",
@@ -1475,7 +1734,9 @@ const DATA = [
   "sec_id": "S7",
   "type": "外交",
   "nature": "条约·公报",
-  "nature_fine": "条约"
+  "nature_fine": "条约",
+  "thread": "T11",
+  "year": 1950
  },
  {
   "term": "中苏论战",
@@ -1487,7 +1748,9 @@ const DATA = [
   "sec_id": "S7",
   "type": "外交",
   "nature": "事件",
-  "nature_fine": "事件"
+  "nature_fine": "事件",
+  "thread": "T11",
+  "year": 1965
  },
  {
   "term": "珍宝岛事件",
@@ -1499,7 +1762,9 @@ const DATA = [
   "sec_id": "S7",
   "type": "军事",
   "nature": "战争",
-  "nature_fine": "事件/冲突"
+  "nature_fine": "事件/冲突",
+  "thread": "T11",
+  "year": 1969
  },
  {
   "term": "朝鲜战争",
@@ -1511,7 +1776,9 @@ const DATA = [
   "sec_id": "S7",
   "type": "军事",
   "nature": "战争",
-  "nature_fine": "战争"
+  "nature_fine": "战争",
+  "thread": "T12",
+  "year": 1950
  },
  {
   "term": "抗美援朝",
@@ -1523,7 +1790,9 @@ const DATA = [
   "sec_id": "S7",
   "type": "军事",
   "nature": "战争",
-  "nature_fine": "战争"
+  "nature_fine": "战争",
+  "thread": "T12",
+  "year": 1950
  },
  {
   "term": "中美《上海公报》",
@@ -1535,7 +1804,9 @@ const DATA = [
   "sec_id": "S7",
   "type": "外交",
   "nature": "条约·公报",
-  "nature_fine": "文件/公报"
+  "nature_fine": "文件/公报",
+  "thread": "T12",
+  "year": 1972
  },
  {
   "term": "中美建交",
@@ -1547,7 +1818,9 @@ const DATA = [
   "sec_id": "S7",
   "type": "外交",
   "nature": "事件",
-  "nature_fine": "事件"
+  "nature_fine": "事件",
+  "thread": "T12",
+  "year": 1979
  },
  {
   "term": "《中美建交联合公报》",
@@ -1559,7 +1832,9 @@ const DATA = [
   "sec_id": "S7",
   "type": "外交",
   "nature": "条约·公报",
-  "nature_fine": "文件/公报"
+  "nature_fine": "文件/公报",
+  "thread": "T12",
+  "year": 1978
  },
  {
   "term": "《八一七公报》",
@@ -1571,7 +1846,9 @@ const DATA = [
   "sec_id": "S7",
   "type": "外交",
   "nature": "条约·公报",
-  "nature_fine": "文件/公报"
+  "nature_fine": "文件/公报",
+  "thread": "T12",
+  "year": 1982
  },
  {
   "term": "中印边境自卫反击战",
@@ -1583,7 +1860,9 @@ const DATA = [
   "sec_id": "S7",
   "type": "军事",
   "nature": "战争",
-  "nature_fine": "战争"
+  "nature_fine": "战争",
+  "thread": "T13",
+  "year": 1962
  },
  {
   "term": "洞朗事件",
@@ -1595,7 +1874,9 @@ const DATA = [
   "sec_id": "S7",
   "type": "外交",
   "nature": "事件",
-  "nature_fine": "事件"
+  "nature_fine": "事件",
+  "thread": "T13",
+  "year": 2017
  },
  {
   "term": "《中日联合声明》",
@@ -1607,7 +1888,9 @@ const DATA = [
   "sec_id": "S7",
   "type": "外交",
   "nature": "条约·公报",
-  "nature_fine": "文件/声明"
+  "nature_fine": "文件/声明",
+  "thread": "T13",
+  "year": 1972
  },
  {
   "term": "《中日和平友好条约》",
@@ -1619,7 +1902,9 @@ const DATA = [
   "sec_id": "S7",
   "type": "外交",
   "nature": "条约·公报",
-  "nature_fine": "条约"
+  "nature_fine": "条约",
+  "thread": "T13",
+  "year": 1978
  },
  {
   "term": "中越边境自卫反击战",
@@ -1631,16 +1916,35 @@ const DATA = [
   "sec_id": "S7",
   "type": "军事",
   "nature": "战争",
-  "nature_fine": "战争"
+  "nature_fine": "战争",
+  "thread": "T13",
+  "year": 1979
  }
 ];
 const TYPE_ORDER=['政治','经济','外交','军事','文化·教育·科技','法律制度'];
 const TIME_ORDER=['1949—1956（过渡时期）','1956—1966（探索时期）','1966—1976（文革时期）','1976—1978（拨乱反正）','1978年以来（改革开放）','文教科技（跨时期）','外交（跨时期）'];
 const NAT_ORDER=['会议','运动','事件','战争','政策·路线·战略','制度','法律法规','文件·文献','条约·公报','组织·机构','工程项目','概念·人物'];
 const DIM_LABEL={type:'类型',time_bucket:'时间',nature:'词性',section:'章节'};
+const THREADS=[
+ {id:'T1',label:'建国与政权巩固',color:'#c0392b'},
+ {id:'T2',label:'社会主义改造',color:'#e07b39'},
+ {id:'T3',label:'探索与“左”倾（大跃进·公社）',color:'#caa12a'},
+ {id:'T4',label:'整风反右与社教',color:'#8aa029'},
+ {id:'T5',label:'文化大革命',color:'#2e8b57'},
+ {id:'T6',label:'拨乱反正',color:'#1f9e9e'},
+ {id:'T7',label:'改革开放（经济·市场）',color:'#2f6fb0'},
+ {id:'T8',label:'祖国统一（对台）',color:'#4b54b8'},
+ {id:'T9',label:'文教与科技',color:'#7e4fa0'},
+ {id:'T10',label:'外交方针',color:'#b13d8e'},
+ {id:'T11',label:'中苏关系',color:'#8d6e3a'},
+ {id:'T12',label:'中美关系',color:'#566b7a'},
+ {id:'T13',label:'周边关系（中印·中日·中越）',color:'#c0506a'},
+];
+const THREAD_COLOR=Object.fromEntries(THREADS.map(t=>[t.id,t.color]));
 document.getElementById('total').textContent=DATA.length;
 
-const state={q:'',time:new Set(),type:new Set(),nat:new Set(),l1:'type',l2:'nature'};
+const state={q:'',time:new Set(),type:new Set(),nat:new Set(),l1:'type',l2:'nature',
+  mode:'cards',hiddenThreads:new Set()};
 
 function counts(key,arr){arr=arr||DATA;const m={};arr.forEach(d=>{m[d[key]]=(m[d[key]]||0)+1});return m;}
 function orderFor(key,arr){
@@ -1724,6 +2028,10 @@ function badgeFor(key,val){
 function render(){
   filtered=DATA.filter(match);
   document.getElementById('count').textContent=filtered.length+' / '+DATA.length+' 条';
+  if(state.mode==='timeline'){renderTimeline();return;}
+  renderCards();
+}
+function renderCards(){
   const list=document.getElementById('list');
   if(!filtered.length){list.innerHTML='<div class="empty">没有匹配的名词，试试调整筛选条件。</div>';return;}
 
@@ -1752,6 +2060,130 @@ function render(){
   list.innerHTML=html;
   list.querySelectorAll('.card').forEach(c=>c.onclick=()=>openModal(+c.dataset.i));
 }
+
+/* ===== timeline view ===== */
+const TL={minY:1946,maxY:2024,pxY:27,padX:64,axisH:46,dotR:5};
+function renderTimeline(){
+  const host=document.getElementById('timeline');
+  const vis=filtered.filter(d=>!state.hiddenThreads.has(d.thread));
+  // legend (always show all threads; click toggles)
+  let legend='<div class="tllegend">';
+  THREADS.forEach(t=>{
+    const n=filtered.filter(d=>d.thread===t.id).length;
+    legend+='<span class="lgchip'+(state.hiddenThreads.has(t.id)?' off':'')+'" data-tid="'+t.id+'">'+
+      '<span class="lgdot" style="background:'+t.color+'"></span>'+esc(t.label)+
+      '<span style="opacity:.5">'+n+'</span></span>';
+  });
+  legend+='</div>';
+
+  const lanes=THREADS.filter(t=>!state.hiddenThreads.has(t.id) && filtered.some(d=>d.thread===t.id));
+  if(!lanes.length){
+    host.innerHTML=legend+'<div class="empty">没有可显示的线索，调整筛选或图例。</div>';
+    bindLegend(host);return;
+  }
+  const {padX,axisH,dotR}=TL;
+  const CW=11, GAP=7, ROW=17, DOTPAD=18, LABGAP=14, BOTPAD=12, MINLANE=52;
+  // dynamic time window: zoom to the years present in the visible threads
+  const yrs=lanes.flatMap(t=>filtered.filter(d=>d.thread===t.id).map(d=>d.year));
+  let aMin=Math.min.apply(null,yrs), aMax=Math.max.apply(null,yrs);
+  let span=aMax-aMin; const pad=Math.max(1,Math.round(span*0.06));
+  aMin-=pad; aMax+=pad;
+  if(aMax-aMin<6){const c=Math.round((aMin+aMax)/2); aMin=c-3; aMax=c+3;}
+  span=aMax-aMin;
+  const pxY=Math.max(27,Math.min(170,Math.round(1600/span)));  // tighter span ⇒ wider spacing (zoom-in)
+  const W=span*pxY+padX*2;
+  const xOf=y=>padX+(y-aMin)*pxY;
+  const tickStep=span<=14?1:span<=30?2:span<=60?5:10;
+
+  // ---- pass 1: compute each lane's layout (positions, levels, height) ----
+  const layout=[]; let yCur=axisH;
+  lanes.forEach(t=>{
+    const items=filtered.filter(d=>d.thread===t.id).sort((a,b)=>a.year-b.year);
+    // x with jitter for identical years
+    const pos=[];let prevYr=null,jit=0;
+    items.forEach(d=>{ if(d.year===prevYr){jit+=14;}else{jit=0;prevYr=d.year;} pos.push(xOf(d.year)+jit); });
+    // greedy level assignment with unlimited levels
+    const levels=[]; const lv=[];
+    items.forEach((d,k)=>{
+      const w=d.term.length*CW+8, left=pos[k]-w/2, right=pos[k]+w/2;
+      let L=0; for(;L<levels.length;L++){ if(levels[L]+GAP<=left) break; }
+      if(L===levels.length) levels.push(0);
+      levels[L]=right; lv.push(L);
+    });
+    const nLev=Math.max(1,levels.length);
+    const h=Math.max(MINLANE, DOTPAD+LABGAP+nLev*ROW+BOTPAD);
+    layout.push({t,items,pos,lv,top:yCur,h,baseY:yCur+DOTPAD});
+    yCur+=h;
+  });
+  const H=yCur+8;
+
+  // ---- pass 2: build SVG ----
+  let s='<svg width="'+W+'" height="'+H+'" viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg">';
+  for(let yr=Math.ceil(aMin/tickStep)*tickStep;yr<=aMax;yr+=tickStep){
+    const x=xOf(yr);
+    s+='<line x1="'+x+'" y1="'+(axisH-14)+'" x2="'+x+'" y2="'+H+'" stroke="#eadfca" stroke-width="1"/>';
+    s+='<text class="tl-yr" x="'+x+'" y="'+(axisH-20)+'" text-anchor="middle">'+yr+'</text>';
+  }
+  s+='<line x1="'+padX+'" y1="'+(axisH-2)+'" x2="'+(W-padX)+'" y2="'+(axisH-2)+'" stroke="#d8cfbc" stroke-width="1.5"/>';
+
+  layout.forEach((L,i)=>{
+    if(i%2)s+='<rect x="0" y="'+L.top+'" width="'+W+'" height="'+L.h+'" fill="rgba(0,0,0,0.012)"/>';
+    if(L.items.length>1){
+      const pts=L.items.map((d,k)=>L.pos[k]+','+L.baseY).join(' ');
+      s+='<polyline points="'+pts+'" fill="none" stroke="'+L.t.color+'" stroke-width="2" opacity="0.45"/>';
+    }
+    L.items.forEach((d,k)=>{
+      const x=L.pos[k], ly=L.baseY+LABGAP+L.lv[k]*ROW, idx=DATA.indexOf(d);
+      s+='<line x1="'+x+'" y1="'+L.baseY+'" x2="'+x+'" y2="'+(ly-9)+'" stroke="'+L.t.color+'" stroke-width="1" opacity="0.28"/>';
+      s+='<circle cx="'+x+'" cy="'+L.baseY+'" r="'+dotR+'" fill="'+L.t.color+'" stroke="#fff" stroke-width="1.5" data-i="'+idx+'" style="cursor:pointer"/>';
+      s+='<text class="tl-name" x="'+x+'" y="'+ly+'" text-anchor="middle" fill="'+L.t.color+'" data-i="'+idx+'">'+esc(d.term)+'</text>';
+    });
+  });
+  s+='</svg>';
+
+  // left lane labels (heights matched to each lane)
+  let left='<div class="spacer" style="height:'+axisH+'px"></div>';
+  layout.forEach(L=>{
+    left+='<div class="tlcell" data-tid="'+L.t.id+'" style="height:'+L.h+'px">'+
+      '<span class="bar" style="background:'+L.t.color+'"></span>'+
+      '<span>'+esc(L.t.label)+'<br><span style="font-weight:400;color:var(--muted);font-size:11px">'+L.items.length+' 条</span></span></div>';
+  });
+
+  host.innerHTML=legend+
+    '<div class="tlwrap"><div class="tlleft" id="tlleft">'+left+'</div>'+
+    '<div class="tlscroll">'+s+'</div></div>'+
+    '<div class="tlnote">点<b>左侧线索标题</b>＝单独查看该线索（时间轴自动放大到其年代区间，再点恢复全部）· 点<b>上方图例</b>＝显隐单条 · 点名称看完整解释 · 当前区间 '+aMin+'—'+aMax+' 年</div>';
+
+  // bind clicks
+  host.querySelectorAll('[data-i]').forEach(el=>el.addEventListener('click',()=>openModal(+el.getAttribute('data-i'))));
+  host.querySelectorAll('#tlleft .tlcell').forEach(c=>c.addEventListener('click',()=>soloThread(c.dataset.tid)));
+  bindLegend(host);
+}
+function bindLegend(host){
+  host.querySelectorAll('.lgchip').forEach(c=>c.addEventListener('click',()=>toggleThread(c.dataset.tid)));
+}
+function toggleThread(tid){
+  state.hiddenThreads.has(tid)?state.hiddenThreads.delete(tid):state.hiddenThreads.add(tid);
+  renderTimeline();
+}
+function soloThread(tid){
+  const others=THREADS.filter(t=>t.id!==tid).map(t=>t.id);
+  const isSolo=others.every(o=>state.hiddenThreads.has(o)) && !state.hiddenThreads.has(tid);
+  state.hiddenThreads = isSolo ? new Set() : new Set(others);  // toggle solo / restore all
+  renderTimeline();
+}
+
+/* view mode toggle */
+document.querySelectorAll('.btn.mode').forEach(b=>b.onclick=()=>{
+  state.mode=b.dataset.mode;
+  document.querySelectorAll('.btn.mode').forEach(x=>x.classList.toggle('active',x===b));
+  const tl=state.mode==='timeline';
+  document.getElementById('cardTiers').style.display=tl?'none':'';
+  document.getElementById('list').style.display=tl?'none':'';
+  document.getElementById('tlHint').style.display=tl?'':'none';
+  document.getElementById('timeline').style.display=tl?'':'none';
+  render();
+});
 
 const overlay=document.getElementById('overlay'),modal=document.getElementById('modal');
 function openModal(i){
